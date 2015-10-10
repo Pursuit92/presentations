@@ -1,0 +1,281 @@
+Intro to Go
+Programming 103
+10 Oct 2015
+Tags: stuff
+
+Pursuit
+josh@jec.pw
+
+* Intro
+
+* Why Go?
+
+- Native, static compilation
+- Garbage collected
+- Statically typed
+- Powerful concurrency primitives
+- "Object oriented" (more on this later)
+- Awesome standard library
+
+* Getting Started
+
+* Installation (you should have already done this)
+
+- Linux: Use your package manager
+- Mac or Windows: Download the installer
+
+Setup
+
+- Set your GOPATH
+
+Add the following to your .bashrc:
+
+    export GOAPTH=$HOME/path/to/go/stuff
+
+* GOPATH?
+
+- Special environment variable that tells go where to look for sources to compile.
+- Very particular about organization.
+
+Sources are organized according to their repository paths. 
+
+    $ tree
+    .
+    `-- bin
+    `-- pkg
+    `-- src
+        |-- bitbucket.org
+        |   `-- Pursuit92
+        |       `-- library
+        |           `-- lib.go
+        `-- github.com
+            `-- Pursuit92
+                `-- program
+                    `-- main.go
+
+Compiled executables and libraries will be installed to `$GOPATH/bin` and `$GOPATH/pkg`.
+
+* Hello, world!
+
+.play src/hello.go
+
+Save this as `$GOPATH/src/hello/hello.go`. From now on, we're going to leave off the `$GOPATH/` prefix. Run:
+
+    go build hello
+
+Go looks in the `src` directory for things to build, so this can be run from anywhere. The resulting binary will be placed in your current directory.
+
+* Breaking it Down
+
+* Packages
+
+Go code is organized into packages. 1 directory == 1 package. Packages should have the same name as their directory, unless it's an executable.
+
+.code src/hello.go /package OMIT/,/end package OMIT/
+
+This is an executable. It will have the same name as the directory that it's in.
+
+- Imports
+
+.code src/hello.go /import OMIT/,/end import OMIT/
+
+Imports are specified by their path starting at $GOPATH/src (unless it's a standard library package).
+
+* Functions
+
+This is a function:
+
+.code src/hello.go /function OMIT/,/end function OMIT/
+
+Functions can have arguments and returned values:
+
+.play src/function.go
+
+Notice that the types come after the variable names and function name/argument list. This is the same everywhere in Go.
+
+* Types
+
+* Placement
+
+Types come after the variable name:
+
+    var thing int = 5
+
+But you don't always have to specify the type! Go has limited type inference. It can usually figure out what type things are supposed to be.
+
+    thing := 5
+
+This makes for a lot fewer boilerplate changes when you need to switch up some logic.
+
+* Collections
+
+Go has three generic collection types:
+
+- arrays
+- slices
+- maps.
+
+Unfortunately, these are the only truly generic types that Go offers.
+
+* Arrays
+
+Fixed length linear storage. Pretty much just a C array.
+
+.code src/array.go /array OMIT/,/end array OMIT/
+
+These are always allocated in-place since they can't grow, so structs containing arrays will include the full array, not just a pointer.
+
+They can be indexed just like C arrays with [] notation, but will trigger a panic if you go out of bounds rather than reading unsafe memory.
+
+* Slices
+
+Slices are like smarter arrays. They are resizable and, under the hood, are simply a length, capacity, and pointer to an underlying array.
+
+.code src/slice.go /slice OMIT/,/end slice OMIT/
+
+A new slice can be created by "slicing" an existing slice or array.
+
+.code src/slice.go /slice2 OMIT/,/end slice2 OMIT/
+
+Bounds for slicing are inclusive on the lower index, exclusive on the upper. Either can be left off to say "slice to the end or beginning of the array or slice"
+
+.code src/slice.go /slice3 OMIT/,/end slice3 OMIT/
+
+Note that the new slice doesn't copy the data, the original slice can be modified through its children.
+
+* Maps
+
+Maps are your traditional hash map. They hold an arbitrary number of values indexed by some type of key.
+
+.code src/map.go /map OMIT/,/end map OMIT/
+
+They're indexed exactly the same as arrays with the [] syntax.
+
+* Closures
+
+Functions can be types too!
+
+.code src/closure.go /first OMIT/,/end first OMIT/
+
+Functions can either be static or created on-the-fly. These on-the-fly functions (called closures or lambdas) can capture variables from the surrounding environment.
+
+.play src/closure.go /main OMIT/,/end main OMIT/
+
+* Pointers
+
+Yes, Go has pointers, and yes they can be null (called nil in go). That aside, they're pretty nice compared to C's pointers.
+
+Mutability/copy semantics are the same, and garbage collection ensurs that it's perfectly valid to do this:
+
+.code src/pointers.go /do OMIT/,/end do OMIT/
+.play src/pointers.go /with OMIT/,/end with OMIT/
+
+* Structs
+
+Structs are basically the same as in C, right down to how they're layed out in memory. They can contain an arbitrary number of members of whatever type you want.
+
+.code src/struct.go /struct OMIT/,/end struct OMIT/
+
+Unlike C structs, you don't have to use the silly `->` notation when trying to access a member of a pointer to a struct.
+
+    &Foo{ Bar: "qas", Baz: 6 }.Baz == 6
+
+* Methods
+
+"Object oriented"(ish)
+
+Methods can be defined on structs or on pointers to structs. Let's pretend we're java for just a second:
+
+.code src/struct.go /methods OMIT/,/end methods OMIT/
+
+Semantically, this is exactly the same as defining functions that take the struct or its pointer as the first argument.
+
+* More Advanced Stuff
+
+* Loops
+
+Go has one loop: for. It has lots of variants though
+
+   for {
+     // forever
+   }
+
+   for condition {
+     // as long as the condition is true
+   }
+
+   for i := 0; i < 10; i++ {
+     // just like C
+   }
+
+   for index, value := range slice {
+     // iterate over a slice or map
+   }
+
+* Interfaces
+
+Interfaces declare a set of methods that a type can implement in order to implement the interface. The interface itself doesn't need to be explicitly implemented, just its methods.
+
+Once a struct implements an interface, it can then be passed to functions that take the interface as an argument, used in a collection of objects that share a common interface, etc.
+
+<insert extended interface example here>
+
+* Concurrency
+
+Goroutines are awesome. Forking a thread in Go is as easy as
+
+    go doStuff()
+
+This creates a "goroutine," a not-quite-thread with extremely low overhead that will execute the function until it returns. It can also take a closure, making it easy to create a thread using values from the local scope.
+
+* Channels
+
+Channels are Go's primary synchronization primitive that allow communication between goroutines.
+
+.play src/channels.go /chan OMIT/,/end chan OMIT/
+
+* Miscellanea
+
+* Package Visibility
+
+Go doesn't have the keywords "public" or "private." Instead, it has "is the first letter upper case?"
+
+Symbols that have upper cased first letters are visible outside of the package or are a publically accessible member of a struct. Within a package, everything defined there is visible, so one can easily implement features using hidden struct fields or hidden methods.
+
+   func doStuff() {} // not visible outside of the package
+   func DoStuff() {} // visible
+
+   type Foo struct {
+       Baz string // public
+       bar int    // private
+   }
+
+   func (foo Foo) doStuff() {}  // private
+   func (foo Foo) DoStuff() {}  // public
+
+* Go Get
+
+Go will helpfully download everything for you. If you want a library, just
+
+   go get github.com/user/library
+
+If you want an executable, just
+
+   go get github.com/some/cool/tool
+
+When building packages, because the full repository is part of the import, Go will do this automatically.
+
+* GoDocs
+
+If you put regular ol' comments before exported functions, types, structs, methods, interfaces, etc., you can generate some pretty docs for your reference and viewing pleasure. Even if you don't have commentary, Go will helpfully generate docs that just tell the type signature of everything.
+
+In fact, all of the docs on the Go site are godoc pages. You can even run an entire godoc webserver that will host docs for your local packages with one command (after you have the executable):
+
+   $ go get golang.org/x/tools/godoc
+   $ godoc -http=:8080
+
+* Example Project
+
+* Start by go getting it
+
+    go get github.com/Pursuit92/presentations/programming103/example
