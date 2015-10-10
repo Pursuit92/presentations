@@ -151,15 +151,25 @@ Maps are your traditional hash map. They hold an arbitrary number of values inde
 
 They're indexed exactly the same as arrays with the [] syntax.
 
-* Closures
+* Loops
 
-Functions can be types too!
+Go has one loop: for. It has lots of variants though
 
-.code src/closure.go /first OMIT/,/end first OMIT/
+   for {
+     // forever
+   }
 
-Functions can either be static or created on-the-fly. These on-the-fly functions (called closures or lambdas) can capture variables from the surrounding environment.
+   for condition {
+     // as long as the condition is true
+   }
 
-.play src/closure.go /main OMIT/,/end main OMIT/
+   for i := 0; i < 10; i++ {
+     // just like C
+   }
+
+   for index, value := range slice {
+     // iterate over a slice or map
+   }
 
 * Pointers
 
@@ -192,26 +202,6 @@ Semantically, this is exactly the same as defining functions that take the struc
 
 * More Advanced Stuff
 
-* Loops
-
-Go has one loop: for. It has lots of variants though
-
-   for {
-     // forever
-   }
-
-   for condition {
-     // as long as the condition is true
-   }
-
-   for i := 0; i < 10; i++ {
-     // just like C
-   }
-
-   for index, value := range slice {
-     // iterate over a slice or map
-   }
-
 * Interfaces
 
 Interfaces declare a set of methods that a type can implement in order to implement the interface. The interface itself doesn't need to be explicitly implemented, just its methods.
@@ -219,6 +209,39 @@ Interfaces declare a set of methods that a type can implement in order to implem
 Once a struct implements an interface, it can then be passed to functions that take the interface as an argument, used in a collection of objects that share a common interface, etc.
 
 <insert extended interface example here>
+
+* Multiple Return values
+
+Functions in Go can return multiple values:
+
+   func doStuff() (int, bool) { return 0, false }
+
+Both returns *must* be used though:
+
+   first, second := doStuff()
+
+* Errors
+
+Many Go functions will return an error value rather than causing an exception (called a panic in Go world)
+
+   func Read(bs []byte) (int, error)
+
+You can define a custom error by making your type conform to the Error interface.
+
+   type Error interface {
+      func Error() string,
+   }
+
+
+* Closures
+
+Functions can be types too!
+
+.code src/closure.go /first OMIT/,/end first OMIT/
+
+Functions can either be static or created on-the-fly. These on-the-fly functions (called closures or lambdas) can capture variables from the surrounding environment.
+
+.play src/closure.go /main OMIT/,/end main OMIT/
 
 * Concurrency
 
@@ -279,3 +302,7 @@ In fact, all of the docs on the Go site are godoc pages. You can even run an ent
 * Start by go getting it
 
     go get github.com/Pursuit92/presentations/programming103/example
+
+Now build something!
+
+* Coding Funtime and Questions
